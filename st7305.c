@@ -666,7 +666,7 @@ static const struct st7305_panel_desc lhf420tb_f07_desc = {
 	.raset[0] = 0x00,
 	.raset[1] = 0xC7,
 
-	.left_offset = 18,
+	.left_offset = 0,
 
 	.page_size = 75,
 	.page_count = 200,
