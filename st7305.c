@@ -640,7 +640,7 @@ static int lhf420tb_f07_init_seq(struct st7305 *st7305)
 	mipi_dbi_command(dbi, 0xD6, 0x17, 0x02); // NVM Load Control
 	mipi_dbi_command(dbi, 0xC0, 0x11, 0x04); // Gate Voltage Setting
 	// VSHP Setting (4.8V)
-	mipi_dbi_command(dbi, 0xC1, 0x37, 0X37, 0X37, 0X37);
+	mipi_dbi_command(dbi, 0xC1, 0X41, 0X41, 0X41, 0X41);
 	// VSLP Setting (0.5V)
 	mipi_dbi_command(dbi, 0xC2, 0X19, 0X19, 0X19, 0X19);
 	// VSHN Setting (-3.8V)
