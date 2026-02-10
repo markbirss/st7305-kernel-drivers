@@ -170,6 +170,7 @@ static void st7305_pipe_enable(struct drm_simple_display_pipe *pipe,
 	mipi_dbi_command(dbi, 0xD0, 0xFF); // Auto power down
 	mipi_dbi_command(dbi, 0x38); // High Power Mode on
 	mipi_dbi_command(dbi, 0xBB, 0x4F); // Enable Clear RAM
+	msleep(100);
 
 	if (st7305->te)
 		mipi_dbi_command(dbi, 0x35, 0x00); // 0b00: TE v-blanking mode
