@@ -349,6 +349,8 @@ static void st7305_pipe_update(struct drm_simple_display_pipe *pipe,
 	if (!pipe->crtc.state->active)
 		return;
 
+	msleep(200);
+	
 	if (st7305->dither_type > 0) {
 		rect.x1 = 0;
 		rect.y1 = 0;
@@ -357,7 +359,7 @@ static void st7305_pipe_update(struct drm_simple_display_pipe *pipe,
 		st7305_fb_dirty(state->fb, &rect);
 	} else {
 		if (drm_atomic_helper_damage_merged(old_state, state, &rect)) {
-			st7305_fb_dirty(state->fb, &rect);
+			st7305_fb_dirty(state->fb, &rect); msleep(200);
 		}
 	}
 }
