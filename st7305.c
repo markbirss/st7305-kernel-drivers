@@ -170,7 +170,6 @@ static void st7305_pipe_enable(struct drm_simple_display_pipe *pipe,
 	mipi_dbi_command(dbi, 0xD0, 0xFF); // Auto power down
 	mipi_dbi_command(dbi, 0x38); // High Power Mode on
 	mipi_dbi_command(dbi, 0xBB, 0x4F); // Enable Clear RAM
-	msleep(100);
 
 	if (st7305->te)
 		mipi_dbi_command(dbi, 0x35, 0x00); // 0b00: TE v-blanking mode
@@ -311,6 +310,8 @@ static void st7305_fb_dirty(struct drm_framebuffer *fb, struct drm_rect *rect)
 	if (!drm_dev_enter(fb->dev, &idx))
 		return;
 
+	msleep(120);
+
 	DRM_DEBUG_KMS("Flushing [FB:%d] " DRM_RECT_FMT "\n", fb->base.id,
 		      DRM_RECT_ARG(rect));
 
@@ -346,12 +347,12 @@ static void st7305_pipe_update(struct drm_simple_display_pipe *pipe,
 	struct drm_plane_state *state = pipe->plane.state;
 	struct drm_framebuffer *fb = state->fb;
 	struct drm_rect rect;
-
+	
+	msleep(20);
+		
 	if (!pipe->crtc.state->active)
 		return;
 
-	msleep(40);
-	
 	if (st7305->dither_type > 0) {
 		rect.x1 = 0;
 		rect.y1 = 0;
@@ -360,7 +361,7 @@ static void st7305_pipe_update(struct drm_simple_display_pipe *pipe,
 		st7305_fb_dirty(state->fb, &rect);
 	} else {
 		if (drm_atomic_helper_damage_merged(old_state, state, &rect)) {
-			st7305_fb_dirty(state->fb, &rect); msleep(40);
+			st7305_fb_dirty(state->fb, &rect); msleep(20);
 		}
 	}
 }
