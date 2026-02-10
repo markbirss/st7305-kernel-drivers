@@ -176,7 +176,8 @@ static void st7305_pipe_enable(struct drm_simple_display_pipe *pipe,
 	else
 		mipi_dbi_command(dbi, 0x34); // TE off
 
-	mipi_dbi_command(dbi, MIPI_DCS_ENTER_INVERT_MODE);
+	//mipi_dbi_command(dbi, MIPI_DCS_ENTER_INVERT_MODE);
+	mipi_dbi_command(dbi, 0x20);
 	mipi_dbi_command(dbi, MIPI_DCS_SET_DISPLAY_ON);
 
 	st7305->desc->init_seq(st7305);
@@ -632,6 +633,56 @@ static const struct st7305_panel_desc ydp420h001_v3_desc = {
 	.draw_pixel = st7306_draw_pixel,
 };
 
+static int lhf420tb_f07_init_seq(struct st7305 *st7305)
+{
+	struct mipi_dbi *dbi = st7305->dbi;
+
+	mipi_dbi_command(dbi, 0xD6, 0x17, 0x02); // NVM Load Control
+	mipi_dbi_command(dbi, 0xC0, 0x11, 0x04); // Gate Voltage Setting
+	// VSHP Setting (4.8V)
+	mipi_dbi_command(dbi, 0xC1, 0x37, 0X37, 0X37, 0X37);
+	// VSLP Setting (0.5V)
+	mipi_dbi_command(dbi, 0xC2, 0X19, 0X19, 0X19, 0X19);
+	// VSHN Setting (-3.8V)
+	mipi_dbi_command(dbi, 0xC4, 0X41, 0X41, 0X41, 0X41);
+	// VSLN Setting (0.5V)
+	mipi_dbi_command(dbi, 0xC5, 0X19, 0X19, 0X19, 0X19);
+
+	mipi_dbi_command(dbi, 0xB0, 0x64); // Gate Line Setting: 400 line
+
+	return 0;
+}
+
+static const struct drm_display_mode lhf420tb_f07_mode = {
+	DRM_SIMPLE_MODE(300, 400, 64, 85),
+};
+
+static const struct st7305_panel_desc lhf420tb_f07_desc = {
+	.mode = &lhf420tb_f07_mode,
+
+	.caset[0] = 0x12,	// 18 
+	.caset[1] = 0x2A,	// 42 0x2a - 0x12 - 0x18	(24 * 4 * 3 = 288)
+
+	.raset[0] = 0x00,
+	.raset[1] = 0xC7,
+
+	.left_offset = 18,
+
+	.page_size = 75,
+	.page_count = 200,
+
+	.bufsize = 75 * 200,
+
+	.init_seq = lhf420tb_f07_init_seq,
+
+	/*
+	 * The ST7306 supports multi-color displays, and while its internal
+	 * display RAM layout differs slightly from the ST7305, the two are
+	 * otherwise largely compatible.
+	 */
+	.draw_pixel = st7305_draw_pixel,
+};
+
 DEFINE_DRM_GEM_DMA_FOPS(st7305_fops);
 
 static struct drm_driver st7305_driver = {
@@ -657,6 +708,7 @@ static const struct of_device_id st7305_of_match[] = {
 
 	{ .compatible = "osptek,ydp290h001-v3", .data = &ydp290h001_v3_desc },
 	{ .compatible = "osptek,ydp420h001-v3", .data = &ydp420h001_v3_desc },
+	{ .compatible = "swi,lhf420tb-f07", .data = &lhf420tb_f07_desc },
 	{ .compatible = "wlk,w290hc019mono-12z", .data = &ydp290h001_v3_desc },
 	{ .compatible = "wlk,w420hc018mono-12z",
 	  .data = &w420hc018mono_12z_desc },
@@ -670,6 +722,7 @@ static const struct spi_device_id st7305_id[] = {
 	{ "ydp213h001-v3" },
 	{ "ydp290h001-v3" },
 	{ "ydp420h001-v3" },
+	{ "lhf420tb-f07" },
 	{ "w290hc019mono-12z" },
 	{ "w420hc018mono-12z" },
 	{},
