@@ -176,8 +176,8 @@ static void st7305_pipe_enable(struct drm_simple_display_pipe *pipe,
 	else
 		mipi_dbi_command(dbi, 0x34); // TE off
 
-	//mipi_dbi_command(dbi, MIPI_DCS_ENTER_INVERT_MODE);
-	mipi_dbi_command(dbi, 0x20);
+	//mipi_dbi_command(dbi, MIPI_DCS_ENTER_INVERT_MODE); // Invert Display
+	mipi_dbi_command(dbi, 0x20);	// Dont invert Display
 	mipi_dbi_command(dbi, MIPI_DCS_SET_DISPLAY_ON);
 
 	st7305->desc->init_seq(st7305);
@@ -310,7 +310,7 @@ static void st7305_fb_dirty(struct drm_framebuffer *fb, struct drm_rect *rect)
 	if (!drm_dev_enter(fb->dev, &idx))
 		return;
 
-	msleep(120);
+	msleep(120);	// Bugfix for kernel crash
 
 	DRM_DEBUG_KMS("Flushing [FB:%d] " DRM_RECT_FMT "\n", fb->base.id,
 		      DRM_RECT_ARG(rect));
@@ -348,7 +348,7 @@ static void st7305_pipe_update(struct drm_simple_display_pipe *pipe,
 	struct drm_framebuffer *fb = state->fb;
 	struct drm_rect rect;
 	
-	msleep(20);
+	msleep(20);	// Bugfix for kernel crash
 		
 	if (!pipe->crtc.state->active)
 		return;
@@ -361,7 +361,8 @@ static void st7305_pipe_update(struct drm_simple_display_pipe *pipe,
 		st7305_fb_dirty(state->fb, &rect);
 	} else {
 		if (drm_atomic_helper_damage_merged(old_state, state, &rect)) {
-			st7305_fb_dirty(state->fb, &rect); msleep(20);
+			st7305_fb_dirty(state->fb, &rect); 
+			msleep(20);		// Bugfix for kernel crash
 		}
 	}
 }
