@@ -49,6 +49,8 @@ struct st7305 {
 	struct mipi_dbi *dbi;
 	struct drm_device *drm;
 
+	struct gpio_desc *gpio_reset;
+
 	/* TODO: support TE */
 	struct gpio_desc *te;
 	struct completion refresh_done;
@@ -105,6 +107,7 @@ static void st7305_pipe_enable(struct drm_simple_display_pipe *pipe,
 	u8 addr_mode;
 	int idx;
 	int ret;
+	static u8 reset_setting = 1;	
 
 	if (!drm_dev_enter(pipe->crtc.dev, &idx))
 		return;
@@ -116,6 +119,16 @@ static void st7305_pipe_enable(struct drm_simple_display_pipe *pipe,
 	if (ret)
 		goto out_exit;
 
+	msleep(100);
+
+	// Toggle the Reset pin
+	reset_setting = (reset_setting) ? 1 : 0;
+	gpiod_set_value(st7305->gpio_reset, reset_setting);
+	msleep(100);
+	reset_setting = (reset_setting) ? 0 : 1;
+	gpiod_set_value(st7305->gpio_reset, reset_setting);
+	msleep(100);
+	
 	mipi_dbi_command(dbi, 0xD1, 0x01); // Booster Enable
 	mipi_dbi_command(dbi, 0xC0, 0x12, 0x0A); // Gate Voltage Setting
 
