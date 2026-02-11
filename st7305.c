@@ -310,7 +310,7 @@ static void st7305_fb_dirty(struct drm_framebuffer *fb, struct drm_rect *rect)
 	if (!drm_dev_enter(fb->dev, &idx))
 		return;
 
-	msleep(120);	// Bugfix for kernel crash
+	//msleep(120);	// Bugfix for kernel crash
 
 	DRM_DEBUG_KMS("Flushing [FB:%d] " DRM_RECT_FMT "\n", fb->base.id,
 		      DRM_RECT_ARG(rect));
@@ -348,7 +348,7 @@ static void st7305_pipe_update(struct drm_simple_display_pipe *pipe,
 	struct drm_framebuffer *fb = state->fb;
 	struct drm_rect rect;
 	
-	msleep(20);	// Bugfix for kernel crash
+	//msleep(20);	// Bugfix for kernel crash
 		
 	if (!pipe->crtc.state->active)
 		return;
@@ -362,7 +362,7 @@ static void st7305_pipe_update(struct drm_simple_display_pipe *pipe,
 	} else {
 		if (drm_atomic_helper_damage_merged(old_state, state, &rect)) {
 			st7305_fb_dirty(state->fb, &rect); 
-			msleep(20);		// Bugfix for kernel crash
+			//msleep(20);		// Bugfix for kernel crash
 		}
 	}
 }
